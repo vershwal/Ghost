@@ -12,13 +12,14 @@ module.exports = {
                 roles: roles
             };
         } else {
-            const filteredRoles = roles.filter(async (role) => {
-                try {
-                    const assignedRole = await canThis(frame.options.context).assign.role(role);
-                    return assignedRole && assignedRole.name !== 'Owner';
-                } catch (error) {
-                    return false;
-                }
+            const filteredRoles = roles.filter((role) => {
+                return canThis(frame.options.context).assign.role(role)
+                    .then((assignedRole) => {
+                        return assignedRole && assignedRole.name !== 'Owner';
+                    })
+                    .catch(() => {
+                        return false;
+                    });
             });
 
             frame.response = {
@@ -29,4 +30,3 @@ module.exports = {
         return frame.response;
     }
 };
-
