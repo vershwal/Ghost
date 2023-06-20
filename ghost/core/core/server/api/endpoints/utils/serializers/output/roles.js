@@ -8,23 +8,25 @@ module.exports = {
         const roles = models.toJSON(frame.options);
 
         if (frame.options.permissions !== 'assign') {
-            return {
+            frame.response = {
                 roles: roles
             };
         } else {
-            const filteredRoles = [];
-
-            for (const role of roles) {
+            const filteredRoles = roles.filter(async (role) => {
                 try {
                     const assignedRole = await canThis(frame.options.context).assign.role(role);
-                    if (assignedRole && assignedRole.name !== 'Owner') {
-                        filteredRoles.push(assignedRole);
-                    }
-                } catch (error) {}
-            }
-            return {
+                    return assignedRole && assignedRole.name !== 'Owner';
+                } catch (error) {
+                    return false;
+                }
+            });
+
+            frame.response = {
                 roles: filteredRoles
             };
         }
+
+        return frame.response;
     }
 };
+
