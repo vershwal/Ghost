@@ -91,9 +91,9 @@ describe('DB API', function () {
 
         try {
             await request.delete(localUtils.API.getApiQuery('db/'))
-            .set('Origin', config.get('url'))
-            .set('Accept', 'application/json')
-            .expect(500);
+                .set('Origin', config.get('url'))
+                .set('Accept', 'application/json')
+                .expect(500);
         } finally {
             stub.restore();
         }
