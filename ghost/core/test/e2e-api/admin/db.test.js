@@ -6,6 +6,8 @@ const events = require('../../../core/server/lib/common/events');
 const testUtils = require('../../utils');
 const {exportedBodyLatest} = require('../../utils/fixtures/export/body-generator');
 const localUtils = require('./utils');
+const sandbox = sinon.createSandbox();
+const models = require('../../../core/server/models/index');
 
 describe('DB API', function () {
     let request;
@@ -82,6 +84,18 @@ describe('DB API', function () {
         eventsTriggered['post.unpublished'].length.should.eql(7);
         eventsTriggered['post.deleted'].length.should.eql(7);
         eventsTriggered['tag.deleted'].length.should.eql(1);
+
+        //Test for handling errors during content deletion
+        const mockError = new Error('Mock error');
+        sandbox.stub(models.Post, 'findAll').rejects(mockError);
+
+        const res3 = await request.delete(localUtils.API.getApiQuery('db/'))
+            .set('Origin', config.get('url'))
+            .set('Accept', 'application/json')
+            .expect(500);
+
+        res3.body.errors.should.exist;
+        res3.body.errors[0].message.should.eql('Internal Server Error');
     });
 
     it('Can trigger external media inliner', async function () {
