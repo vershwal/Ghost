@@ -6,8 +6,6 @@ const events = require('../../../core/server/lib/common/events');
 const testUtils = require('../../utils');
 const {exportedBodyLatest} = require('../../utils/fixtures/export/body-generator');
 const localUtils = require('./utils');
-const sandbox = sinon.createSandbox();
-const models = require('../../../core/server/models/index');
 
 describe('DB API', function () {
     let request;
