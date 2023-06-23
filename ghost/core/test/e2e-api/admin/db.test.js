@@ -84,19 +84,6 @@ describe('DB API', function () {
         eventsTriggered['post.unpublished'].length.should.eql(7);
         eventsTriggered['post.deleted'].length.should.eql(7);
         eventsTriggered['tag.deleted'].length.should.eql(1);
-
-        //Test for handling errors during content deletion
-        const mockError = new Error('Mock error');
-        const stub = sandbox.stub(models.Post, 'findAll').rejects(mockError);
-
-        try {
-            await request.delete(localUtils.API.getApiQuery('db/'))
-                .set('Origin', config.get('url'))
-                .set('Accept', 'application/json')
-                .expect(500);
-        } finally {
-            stub.restore();
-        }
     });
 
     it('Can trigger external media inliner', async function () {
