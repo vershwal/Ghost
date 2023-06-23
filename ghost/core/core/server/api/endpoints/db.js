@@ -163,7 +163,7 @@ module.exports = {
                     };
                   });
               
-                  const tasks = [postDeletionTasks, tagDeletionTasks];
+                  const tasks = [...postDeletionTasks, ...tagDeletionTasks]; // Flattened tasks array
               
                   try {
                     await pool(tasks, 100);
@@ -173,7 +173,7 @@ module.exports = {
                     });
                   }
                 });
-              }              
+              }            
 
 
             return dbBackup.backup().then(deleteContent);
