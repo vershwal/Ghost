@@ -149,15 +149,15 @@ module.exports = {
                         transacting: transacting
                     };
               
-                    const response = await models.Post.findAll(queryOpts);
-                    const postDeletionTasks = response.models.map((post) => {
+                    const posts = await models.Post.findAll(queryOpts);
+                    const postDeletionTasks = posts.models.map((post) => {
                         return async () => {
                             await models.Post.destroy(Object.assign({id: post.id}, queryOpts));
                         };
                     });
               
-                    const response2 = await models.Tag.findAll(queryOpts);
-                    const tagDeletionTasks = response2.models.map((tag) => {
+                    const tags = await models.Tag.findAll(queryOpts);
+                    const tagDeletionTasks = tags.models.map((tag) => {
                         return async () => {
                             await models.Tag.destroy(Object.assign({id: tag.id}, queryOpts));
                         };
@@ -173,7 +173,7 @@ module.exports = {
                         });
                     }
                 });
-            }            
+            }
 
             return dbBackup.backup().then(deleteContent);
         }
