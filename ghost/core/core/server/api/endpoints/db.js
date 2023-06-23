@@ -171,7 +171,7 @@ module.exports = {
                         throw new errors.InternalServerError({
                             err: err
                         });
-                  }
+                    }
                 });
             }            
 
