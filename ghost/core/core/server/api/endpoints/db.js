@@ -142,39 +142,38 @@ module.exports = {
              */
             async function deleteContent() {
                 return models.Base.transaction(async (transacting) => {
-                  const queryOpts = {
-                    columns: 'id',
-                    context: { internal: true },
-                    destroyAll: true,
-                    transacting: transacting
-                  };
-              
-                  const response = await models.Post.findAll(queryOpts);
-                  const postDeletionTasks = response.models.map((post) => {
-                    return async () => {
-                      await models.Post.destroy(Object.assign({ id: post.id }, queryOpts));
+                    const queryOpts = {
+                        columns: 'id',
+                        context: {internal: true},
+                        destroyAll: true,
+                        transacting: transacting
                     };
-                  });
               
-                  const response2 = await models.Tag.findAll(queryOpts);
-                  const tagDeletionTasks = response2.models.map((tag) => {
-                    return async () => {
-                      await models.Tag.destroy(Object.assign({ id: tag.id }, queryOpts));
-                    };
-                  });
-              
-                  const tasks = [...postDeletionTasks, ...tagDeletionTasks]; // Flattened tasks array
-              
-                  try {
-                    await pool(tasks, 100);
-                  } catch (err) {
-                    throw new errors.InternalServerError({
-                      err: err
+                    const response = await models.Post.findAll(queryOpts);
+                    const postDeletionTasks = response.models.map((post) => {
+                        return async () => {
+                            await models.Post.destroy(Object.assign({id: post.id}, queryOpts));
+                        };
                     });
+              
+                    const response2 = await models.Tag.findAll(queryOpts);
+                    const tagDeletionTasks = response2.models.map((tag) => {
+                        return async () => {
+                            await models.Tag.destroy(Object.assign({id: tag.id}, queryOpts));
+                        };
+                    });
+              
+                    const tasks = [...postDeletionTasks, ...tagDeletionTasks];
+              
+                    try {
+                        await pool(tasks, 100);
+                    } catch (err) {
+                        throw new errors.InternalServerError({
+                            err: err
+                        });
                   }
                 });
-              }            
-
+            }            
 
             return dbBackup.backup().then(deleteContent);
         }
