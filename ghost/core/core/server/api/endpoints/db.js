@@ -142,41 +142,41 @@ module.exports = {
              */
             function deleteContent() {
                 return models.Base.transaction(function (transacting) {
-                  const queryOpts = {
-                    columns: 'id',
-                    context: { internal: true },
-                    destroyAll: true,
-                    transacting: transacting
-                  };
+                    const queryOpts = {
+                        columns: 'id',
+                        context: {internal: true},
+                        destroyAll: true,
+                        transacting: transacting
+                    };
           
-                  return models.Post.findAll(queryOpts)
-                    .then(function (posts) {
-                      const postDeletionTasks = posts.models.map(function (post) {
-                        return function () {
-                          return models.Post.destroy(Object.assign({ id: post.id }, queryOpts));
-                        };
-                      });
-          
-                      return models.Tag.findAll(queryOpts)
-                        .then(function (tags) {
-                          const tagDeletionTasks = tags.models.map(function (tag) {
-                            return function () {
-                              return models.Tag.destroy(Object.assign({ id: tag.id }, queryOpts));
-                            };
-                          });
-          
-                          const tasks = [...postDeletionTasks, ...tagDeletionTasks];
-          
-                          return pool(tasks, 100)
-                            .catch(function (err) {
-                              throw new errors.InternalServerError({
-                                err: err
-                              });
+                    return models.Post.findAll(queryOpts)
+                        .then(function (posts) {
+                            const postDeletionTasks = posts.models.map(function (post) {
+                                return function () {
+                                    return models.Post.destroy(Object.assign({id: post.id}, queryOpts));
+                                };
                             });
+          
+                            return models.Tag.findAll(queryOpts)
+                                .then(function (tags) {
+                                    const tagDeletionTasks = tags.models.map(function (tag) {
+                                        return function () {
+                                            return models.Tag.destroy(Object.assign({id: tag.id}, queryOpts));
+                                        };
+                                    });
+          
+                                    const tasks = [...postDeletionTasks, ...tagDeletionTasks];
+          
+                                    return pool(tasks, 100)
+                                        .catch(function (err) {
+                                            throw new errors.InternalServerError({
+                                                err: err
+                                            });
+                                        });
+                                });
                         });
-                    });
                 });
-              }
+            }
 
             return dbBackup.backup().then(deleteContent);
         }
