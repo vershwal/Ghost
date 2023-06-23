@@ -141,14 +141,14 @@ module.exports = {
              *   - `onDestroyed` or `onDestroying` can contain custom logic
              */
             function deleteContent() {
-                return models.Base.transaction(function (transacting) {
+                return models.Base.transaction((transacting) => {
                     const queryOpts = {
                         columns: 'id',
                         context: {internal: true},
                         destroyAll: true,
                         transacting: transacting
                     };
-          
+
                     return models.Post.findAll(queryOpts)
                         .then(function (posts) {
                             const postDeletionTasks = posts.models.map(function (post) {
