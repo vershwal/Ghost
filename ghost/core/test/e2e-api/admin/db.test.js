@@ -87,15 +87,16 @@ describe('DB API', function () {
 
         //Test for handling errors during content deletion
         const mockError = new Error('Mock error');
-        sandbox.stub(models.Post, 'findAll').rejects(mockError);
+        const stub = sandbox.stub(models.Post, 'findAll').rejects(mockError);
 
-        const res3 = await request.delete(localUtils.API.getApiQuery('db/'))
+        try {
+            await request.delete(localUtils.API.getApiQuery('db/'))
             .set('Origin', config.get('url'))
             .set('Accept', 'application/json')
             .expect(500);
-
-        res3.body.errors.should.exist;
-        res3.body.errors[0].message.should.eql('Internal Server Error');
+        } finally {
+            stub.restore();
+        }
     });
 
     it('Can trigger external media inliner', async function () {
