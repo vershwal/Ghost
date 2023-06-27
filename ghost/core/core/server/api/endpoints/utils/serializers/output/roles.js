@@ -2,33 +2,33 @@ const debug = require('@tryghost/debug')('api:endpoints:utils:serializers:output
 const canThis = require('../../../../../services/permissions').canThis;
 
 module.exports = {
-    browse(models, apiConfig, frame) {
+    async browse(models, apiConfig, frame) {
         debug('browse');
 
         const roles = models.toJSON(frame.options);
 
         if (frame.options.permissions !== 'assign') {
-            return frame.response = {
+            return {
                 roles: roles
             };
         } else {
-            const rolePromises = roles.map((role) => {
-                return canThis(frame.options.context).assign.role(role)
-                    .then((canAssign) => {
-                        if (canAssign && role.name !== 'Owner') {
-                            return role;
-                        }
-                    })
-                    .catch(() => {});
-            });
+            const filteredRoles = [];
+            for (let role of roles) {
+                try {
+                    const canAssign = await canThis(frame.options.context).assign.role(role);
+                    if (canAssign && role.name !== 'Owner') {
+                        filteredRoles.push(role);
+                    }
+                } catch (error) {
+                    // Ignore errors
+                }
+            }
 
-            return Promise.all(rolePromises)
-                .then((filteredRoles) => {
-                    filteredRoles = filteredRoles.filter(Boolean);
-                    return frame.response = {
-                        roles: filteredRoles
-                    };
-                });
+            const finalRoles = filteredRoles.filter((role) => role !== undefined);
+
+            return {
+                roles: finalRoles
+            };
         }
     }
 };
