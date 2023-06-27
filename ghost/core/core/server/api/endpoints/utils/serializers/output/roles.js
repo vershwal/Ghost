@@ -7,11 +7,11 @@ module.exports = {
 
         const roles = models.toJSON(frame.options);
 
-        if (frame.options.permissions !== 'assign') {
-            return frame.response = {
+        if (!frame.options.permissions || frame.options.permissions === 'all') {
+            return {
                 roles: roles
             };
-        } else {
+        } else if (frame.options.permissions === 'assign') {
             const filteredRoles = [];
             for (let role of roles) {
                 try {
@@ -24,16 +24,15 @@ module.exports = {
                 }
             }
 
-            frame.response = {
+            return {
                 roles: filteredRoles
             };
+        } else {
+            // Handle other permission options if needed
+            // Add appropriate code here
+            return {
+                roles: roles
+            };
         }
-
-        if (frame.options.permissions === 'assign') {
-            frame.response.roles = frame.response.roles.filter(role => role.name !== 'Owner');
-        }
-
-        return frame.response;
     }
 };
-
