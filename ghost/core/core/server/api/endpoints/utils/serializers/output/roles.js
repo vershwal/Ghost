@@ -8,7 +8,7 @@ module.exports = {
         const roles = models.toJSON(frame.options);
 
         if (frame.options.permissions !== 'assign') {
-            frame.response = {
+            return frame.response = {
                 roles: roles
             };
         } else {
@@ -24,7 +24,7 @@ module.exports = {
                 }
             }
 
-            frame.response = {
+            return frame.response = {
                 roles: filteredRoles
             };
         }
