@@ -1,5 +1,6 @@
 const debug = require('@tryghost/debug')('api:endpoints:utils:serializers:output:roles');
 const canThis = require('../../../../../services/permissions').canThis;
+const Promise = require('bluebird');
 
 module.exports = {
     browse(models, apiConfig, frame) {
