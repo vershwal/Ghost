@@ -21,8 +21,11 @@ module.exports = {
                         if (canAssign && role.name !== 'Owner') {
                             return role;
                         }
+                        return null; // Add this line
                     })
-                    .catch(() => {});
+                    .catch(() => {
+                        return null; // Add this line
+                    });
             });
 
             return Promise.all(filteredRolesPromises)
