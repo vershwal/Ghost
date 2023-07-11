@@ -82,7 +82,7 @@ module.exports = function (Bookshelf) {
                 }
 
                 if (options.id) {
-                    query.where({id: options.id});
+                    query.where({ id: options.id });
                 }
 
                 return query.then((objects) => {
@@ -90,10 +90,8 @@ module.exports = function (Bookshelf) {
 
                     if (!objects.length) {
                         debug('No more entries found');
-                        return Promise.resolve([]);
+                        return [];
                     }
-
-                    let promises = [];
 
                     if (!withRelated) {
                         return _.map(objects, (object) => {
@@ -112,33 +110,31 @@ module.exports = function (Bookshelf) {
                         });
                     }
 
-                    _.each(withRelated, (withRelatedKey) => {
+                    const promises = _.map(withRelated, (withRelatedKey) => {
                         const relation = relations[withRelatedKey];
 
-                        promises.push(
-                            Bookshelf.knex(relation.targetTable)
-                                .select(relation.select)
-                                .innerJoin(
-                                    relation.innerJoin.relation,
-                                    relation.innerJoin.condition[0],
-                                    relation.innerJoin.condition[1],
-                                    relation.innerJoin.condition[2]
-                                )
-                                .whereIn(relation.whereIn, _.map(objects, 'id'))
-                                .orderBy(relation.orderBy)
-                                .then((queryRelations) => {
-                                    debug('fetched withRelated', relation.name);
+                        return Bookshelf.knex(relation.targetTable)
+                            .select(relation.select)
+                            .innerJoin(
+                                relation.innerJoin.relation,
+                                relation.innerJoin.condition[0],
+                                relation.innerJoin.condition[1],
+                                relation.innerJoin.condition[2]
+                            )
+                            .whereIn(relation.whereIn, _.map(objects, 'id'))
+                            .orderBy(relation.orderBy)
+                            .then((queryRelations) => {
+                                debug('fetched withRelated', relation.name);
 
-                                    return queryRelations.reduce((obj, item) => {
-                                        if (!obj[item[relation.whereInKey]]) {
-                                            obj[item[relation.whereInKey]] = [];
-                                        }
+                                return queryRelations.reduce((obj, item) => {
+                                    if (!obj[item[relation.whereInKey]]) {
+                                        obj[item[relation.whereInKey]] = [];
+                                    }
 
-                                        obj[item[relation.whereInKey]].push(_.omit(item, relation.select));
-                                        return obj;
-                                    }, {});
-                                })
-                        );
+                                    obj[item[relation.whereInKey]].push(_.omit(item, relation.select));
+                                    return obj;
+                                }, {});
+                            });
                     });
 
                     return Promise.all(promises)
