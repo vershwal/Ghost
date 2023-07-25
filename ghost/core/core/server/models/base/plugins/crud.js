@@ -7,12 +7,17 @@ const messages = {
     couldNotUnderstandRequest: 'Could not understand request.'
 };
 
-// If user requested an excerpt we need to ensure plaintext and custom_excerpt is also included so we can include it when we query the database.
-const requiredForExcerpt = (requestedColumns) => {
-    if (requestedColumns){
-        if (requestedColumns.includes('excerpt') && !requestedColumns.includes('plaintext') && !requestedColumns.includes('plaintext') || !requestedColumns) {
+// Adding extra columns that we need when we query the database.
+const addExtraColumnsToFetch = (requestedColumns) => {
+    if (requestedColumns) {
+        // If user requested an excerpt we need to ensure plaintext and custom_excerpt are also included.
+        if (requestedColumns.includes('excerpt') && !requestedColumns.includes('plaintext') && !requestedColumns.includes('plaintext')) { 
             requestedColumns.push('plaintext');
             requestedColumns.push('custom_excerpt');
+        }
+        // If user requested read_time we need to ensure html is also included. This html is used for calculating the reading_time.
+        if (requestedColumns.includes('reading_time') && !requestedColumns.includes('html')) {
+            requestedColumns.push('html');
         }
     }
 };
@@ -82,8 +87,8 @@ module.exports = function (Bookshelf) {
             const options = this.filterOptions(unfilteredOptions, 'findPage');
             const itemCollection = this.getFilteredCollection(options);
             const requestedColumns = options.columns;
-            // make sure we include plaintext and custom_excerpt if excerpt is requested
-            requiredForExcerpt(requestedColumns);
+            // make sure we include extra columns if required
+            addExtraColumnsToFetch(requestedColumns);
 
             // Set this to true or pass ?debug=true as an API option to get output
             itemCollection.debug = unfilteredOptions.debug && process.env.NODE_ENV !== 'production';
@@ -151,8 +156,8 @@ module.exports = function (Bookshelf) {
             data = this.filterData(data);
             const model = this.forge(data);
             const requestedColumns = options.columns;
-            // make sure we include plaintext and custom_excerpt if excerpt is requested
-            requiredForExcerpt(requestedColumns);
+            // make sure we include extra columns if required
+            addExtraColumnsToFetch(requestedColumns);
 
             // @NOTE: The API layer decides if this option is allowed
             if (options.filter) {

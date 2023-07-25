@@ -70,6 +70,10 @@ module.exports.forPost = (options, model, attrs) => {
                 additionalImages += 1;
             }
             attrs.reading_time = readingMinutes(attrs.html, additionalImages);
+            //remove attrs.html after calculating read_time if not requested by user as a field.
+            if (options.columns && !options.columns.includes('html')) {
+                delete attrs.html;
+            }
         }
     }
 };
