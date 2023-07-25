@@ -175,6 +175,23 @@ describe('Posts Content API', function () {
             });
     });
 
+    it('Can request different fields of posts', async function () {
+        await agent
+            .get('posts/?&fields=reading_time,url,title')
+            .expectStatus(200)
+            .matchHeaderSnapshot({
+                'content-version': anyContentVersion,
+                etag: anyEtag
+            })
+            .matchBodySnapshot({
+                posts: new Array(11).fill({
+                    reading_time: anyNumber,
+                    url: anyString,
+                    title: anyString
+                })
+            });
+    });
+
     it('Can include relations', async function () {
         await agent
             .get('posts/?include=tags,authors')
