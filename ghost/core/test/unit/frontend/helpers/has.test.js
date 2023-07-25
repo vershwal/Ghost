@@ -101,6 +101,33 @@ describe('{{#has}} helper', function () {
             inverse.called.should.be.false();
         });
 
+        it('should handle tags starting with a prefix, no tag starts with the given prefix', function () {
+            thisCtx = {tags: [{name: 'foo'}, {name: 'bar'}, {name: 'baz'}]};
+
+            callHasHelper(thisCtx, {tag: 'prefix:episode-'});
+
+            fn.called.should.be.false();
+            inverse.called.should.be.true();
+        });
+
+        it('should handle tags starting with a prefix, some tags start with the given prefix', function () {
+            thisCtx = {tags: [{name: 'episode-tag-test'}, {name: 'episode-tag-test-2'}, {name: 'baz'}]};
+
+            callHasHelper(thisCtx, {tag: 'prefix:episode-'});
+
+            fn.called.should.be.true();
+            inverse.called.should.be.false();
+        });
+
+        it('should handle tags starting with a prefix, all tags start with the given prefix', function () {
+            thisCtx = {tags: [{name: 'episode-tag-test'}, {name: 'episode-tag-test-2'}, {name: 'episode-tag-test-3'}]};
+
+            callHasHelper(thisCtx, {tag: 'prefix:episode-'});
+
+            fn.called.should.be.true();
+            inverse.called.should.be.false();
+        });
+
         it('count:0', function () {
             thisCtx = {tags: [{name: 'foo'}, {name: 'bar'}, {name: 'baz'}]};
 
