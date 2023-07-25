@@ -5,7 +5,7 @@ const testUtils = require('../../utils');
 const models = require('../../../core/server/models');
 
 const {agentProvider, fixtureManager, matchers, mockManager} = require('../../utils/e2e-framework');
-const {anyArray, anyContentVersion, anyEtag, anyUuid, anyISODateTimeWithTZ} = matchers;
+const {anyArray, anyContentVersion, anyEtag, anyUuid, anyISODateTimeWithTZ, anyString, anyNumber} = matchers;
 
 const postMatcher = {
     published_at: anyISODateTimeWithTZ,
@@ -158,6 +158,21 @@ describe('Posts Content API', function () {
                 etag: anyEtag
             })
             .matchBodySnapshot();
+    });
+
+    it('Can request reading_time of posts', async function () {
+        await agent
+            .get('posts/?&fields=reading_time')
+            .expectStatus(200)
+            .matchHeaderSnapshot({
+                'content-version': anyContentVersion,
+                etag: anyEtag
+            })
+            .matchBodySnapshot({
+                posts: new Array(11).fill({
+                    reading_time: anyNumber
+                })
+            });
     });
 
     it('Can include relations', async function () {

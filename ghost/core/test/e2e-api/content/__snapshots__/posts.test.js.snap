@@ -3413,6 +3413,69 @@ Object {
 }
 `;
 
+exports[`Posts Content API Can request reading_time of posts 1: [body] 1`] = `
+Object {
+  "meta": Object {
+    "pagination": Object {
+      "limit": 15,
+      "next": null,
+      "page": 1,
+      "pages": 1,
+      "prev": null,
+      "total": 11,
+    },
+  },
+  "posts": Array [
+    Object {
+      "reading_time": Any<Number>,
+    },
+    Object {
+      "reading_time": Any<Number>,
+    },
+    Object {
+      "reading_time": Any<Number>,
+    },
+    Object {
+      "reading_time": Any<Number>,
+    },
+    Object {
+      "reading_time": Any<Number>,
+    },
+    Object {
+      "reading_time": Any<Number>,
+    },
+    Object {
+      "reading_time": Any<Number>,
+    },
+    Object {
+      "reading_time": Any<Number>,
+    },
+    Object {
+      "reading_time": Any<Number>,
+    },
+    Object {
+      "reading_time": Any<Number>,
+    },
+    Object {
+      "reading_time": Any<Number>,
+    },
+  ],
+}
+`;
+
+exports[`Posts Content API Can request reading_time of posts 2: [headers] 1`] = `
+Object {
+  "access-control-allow-origin": "*",
+  "cache-control": "public, max-age=0",
+  "content-length": "309",
+  "content-type": "application/json; charset=utf-8",
+  "content-version": StringMatching /v\\\\d\\+\\\\\\.\\\\d\\+/,
+  "etag": StringMatching /\\(\\?:W\\\\/\\)\\?"\\(\\?:\\[ !#-\\\\x7E\\\\x80-\\\\xFF\\]\\*\\|\\\\r\\\\n\\[\\\\t \\]\\|\\\\\\\\\\.\\)\\*"/,
+  "vary": "Accept-Version, Accept-Encoding",
+  "x-powered-by": "Express",
+}
+`;
+
 exports[`Posts Content API Can use post excerpt as field 1: [body] 1`] = `
 Object {
   "meta": Object {
