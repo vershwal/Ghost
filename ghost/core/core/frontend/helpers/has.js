@@ -33,6 +33,19 @@ function handleCount(ctxAttr, data) {
     return false;
 }
 
+function handlePrefix(ctxAttr, data) {
+    if (!data || !_.isFinite(data.length)) {
+        return false;
+    }
+    //Return true if any tag matches the given prefix 
+    //ctxAttr: the tag having the given prefix : 'prefix:episode-'
+    //data : all tags : [{name: 'episode-tag-test'}, {name: 'episode-tag-test-2'}, {name: 'episode-tag-test-3'}]
+    const prefix = 'prefix:';
+    const prefixToMatch = ctxAttr.slice(prefix.length); // Get the substring after 'prefix:'
+
+    return data.some(tag => tag.name.startsWith(prefixToMatch));
+}
+
 function evaluateTagList(expr, tags) {
     return expr.split(',').map(function (v) {
         return v.trim();
@@ -53,6 +66,10 @@ function handleTag(data, attrs) {
 
     if (attrs.tag.match(/count:/)) {
         return handleCount(attrs.tag, data.tags);
+    }
+
+    if (attrs.tag.match(/prefix:/)) {
+        return handlePrefix(attrs.tag, data.tags);
     }
 
     return evaluateTagList(attrs.tag, _.map(data.tags, 'name')) || false;
