@@ -5,17 +5,19 @@ export const setupSocketConnection = ({url, postId, updateCommentCount} : {url: 
     const socket = io(url);
     socket.emit('joinCommentCountRoom', postId);
 
-    socket.on('connect', () => {
-        console.log('Connected to the server!');
-    });
+    //Added these logs for testing
     
-    socket.on('disconnect', () => {
-        console.log('Disconnected from the server!');
-    });
+    // socket.on('connect', () => {
+    //     console.log('Connected to the server!');
+    // });
     
-    socket.on('connect_error', (error) => {
-        console.error('Connection error:', error);
-    });
+    // socket.on('disconnect', () => {
+    //     console.log('Disconnected from the server!');
+    // });
+    
+    // socket.on('connect_error', (error) => {
+    //     console.error('Connection error:', error);
+    // });
 
     socket.on('updateCommentCount', (newCommentCount, postId) => {
         console.log("Aa gya ji: " + newCommentCount + " " + postId);
