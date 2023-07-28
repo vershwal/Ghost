@@ -7,6 +7,7 @@ import {AppContext} from './AppContext';
 import {CommentsFrame} from './components/Frame';
 import {createPopupNotification} from './utils/helpers';
 import {hasMode} from './utils/check-mode';
+import {setupSocketConnection} from './utils/socket-connection';
 
 function AuthFrame({adminUrl, onLoad}) {
     if (!adminUrl) {
@@ -42,6 +43,7 @@ export default class App extends React.Component {
         };
         this.adminApi = null;
         this.GhostApi = null;
+        this.socket = null;
 
         // Bind to make sure we have a variable reference (and don't need to create a new binded function in our context value every time the state changes)
         this.dispatchAction = this.dispatchAction.bind(this);
@@ -65,6 +67,17 @@ export default class App extends React.Component {
             };
 
             this.setState(state);
+            this.socket = setupSocketConnection({
+                url : this.props.siteUrl, 
+                postId: this.props.postId, 
+                updateCommentCount: (newCommentCount, postId) => {
+                    console.log("Ho gya Update ji: " + newCommentCount + " " + postId);
+                    if(postId === this.props.postId) {
+                        this.setState({commentCount: newCommentCount});
+                    }
+                }
+            });
+            
         } catch (e) {
             /* eslint-disable no-console */
             console.error(`[Comments] Failed to initialize:`, e);
@@ -120,7 +133,7 @@ export default class App extends React.Component {
             action: `${action}:running`
         });
         try {
-            const updatedState = await ActionHandler({action, data, state: this.state, api: this.GhostApi, adminApi: this.adminApi});
+            const updatedState = await ActionHandler({action, data, state: this.state, api: this.GhostApi, adminApi: this.adminApi, socket: this.socket});
             this.setState(updatedState);
 
             /** Reset action state after short timeout if not failed*/
@@ -286,6 +299,10 @@ export default class App extends React.Component {
     componentWillUnmount() {
         /**Clear timeouts and event listeners on unmount */
         clearTimeout(this.timeoutId);
+
+        if (this.socket) {
+            this.socket.disconnect(true);
+        }
     }
 
     render() {

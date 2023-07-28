@@ -64,6 +64,7 @@ module.exports.getAll = () => {
     });
 
     labs.members = settingsCache.get('members_signup_access') !== 'none';
+    labs['websockets'] = true; //Added here for testing
 
     return labs;
 };

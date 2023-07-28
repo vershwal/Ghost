@@ -25,6 +25,15 @@ module.exports = {
                     debug(`[Websockets] received addCount from client, count is now ${count}`);
                     socket.broadcast.emit('addCount', count);
                 });
+
+                socket.on('updateCommentCount', (commentCount, postId) => {
+                    io.to('comment_count_room_' + postId).emit('updateCommentCount', commentCount, postId);
+                });
+
+                socket.on('joinCommentCountRoom', (postId) => {
+                    socket.join('comment_count_room_' + postId);
+                    console.log("Joined room: " + 'comment_count_room_' + postId);
+                });
             });
 
             ghostServer.registerCleanupTask(async () => {

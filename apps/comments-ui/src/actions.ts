@@ -33,17 +33,18 @@ async function loadMoreReplies({state, api, data: {comment, limit}}: {state: App
     };
 }
 
-async function addComment({state, api, data: comment}: {state: AppContextType, api: GhostApi, data: AddComment}) {
+async function addComment({state, api, data: comment, socket}: {state: AppContextType, api: GhostApi, data: AddComment, socket:any}) {
     const data = await api.comments.add({comment});
     comment = data.comments[0];
-
+    socket.emit('updateCommentCount', state.commentCount + 1, state.postId);
+    console.log("Emmmited comment count for post: " + state.postId);
     return {
         comments: [comment, ...state.comments],
         commentCount: state.commentCount + 1
     };
 }
 
-async function addReply({state, api, data: {reply, parent}}: {state: AppContextType, api: GhostApi, data: {reply: any, parent: any}}) {
+async function addReply({state, api, data: {reply, parent}, socket}: {state: AppContextType, api: GhostApi, data: {reply: any, parent: any}, socket: any}) {
     let comment = reply;
     comment.parent_id = parent.id;
 
@@ -55,6 +56,8 @@ async function addReply({state, api, data: {reply, parent}}: {state: AppContextT
     // To fix that, we'll save the reply to a different field that is created locally to differentiate between replies before and after pagination 😅
 
     // Replace the comment in the state with the new one
+    socket.emit('updateCommentCount', state.commentCount + 1, state.postId);
+    console.log("Emmmited comment count for post: " + state.postId);
     return {
         comments: state.comments.map((c) => {
             if (c.id === parent.id) {
@@ -75,7 +78,6 @@ async function addReply({state, api, data: {reply, parent}}: {state: AppContextT
 
 async function hideComment({state, adminApi, data: comment}: {state: AppContextType, adminApi: any, data: {id: string}}) {
     await adminApi.hideComment(comment.id);
-
     return {
         comments: state.comments.map((c) => {
             const replies = c.replies.map((r) => {
@@ -113,7 +115,6 @@ async function showComment({state, api, adminApi, data: comment}: {state: AppCon
     // + all relations are loaded as the current member (not the admin)
     const data = await api.comments.read(comment.id);
     const updatedComment = data.comments[0];
-
     return {
         comments: state.comments.map((c) => {
             const replies = c.replies.map((r) => {
@@ -222,14 +223,15 @@ async function unlikeComment({state, api, data: comment}: {state: AppContextType
     };
 }
 
-async function deleteComment({state, api, data: comment}: {state: AppContextType, api: GhostApi, data: {id: string}}) {
+async function deleteComment({state, api, data: comment, socket}: {state: AppContextType, api: GhostApi, data: {id: string}, socket: any}) {
     await api.comments.edit({
         comment: {
             id: comment.id,
             status: 'deleted'
         }
     });
-
+    socket.emit('updateCommentCount', state.commentCount - 1, state.postId);
+    console.log("Emmmited comment count for post: " + state.postId);
     return {
         comments: state.comments.map((c) => {
             const replies = c.replies.map((r) => {
@@ -381,10 +383,10 @@ export function isSyncAction(action: string): action is SyncActionType {
 }
 
 /** Handle actions in the App, returns updated state */
-export async function ActionHandler({action, data, state, api, adminApi}: {action: ActionType, data: any, state: AppContextType, api: GhostApi, adminApi: any}) {
-    const handler = Actions[action];
+export async function ActionHandler({action, data, state, api, adminApi, socket}: {action: ActionType, data: any, state: AppContextType, api: GhostApi, adminApi: any, socket: any}) {
+    const handler = Actions[action];    
     if (handler) {
-        return await handler({data, state, api, adminApi} as any) || {};
+        return await handler({data, state, api, adminApi, socket} as any) || {};
     }
     return {};
 }
