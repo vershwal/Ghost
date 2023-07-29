@@ -37,7 +37,8 @@ async function addComment({state, api, data: comment, socket}: {state: AppContex
     const data = await api.comments.add({comment});
     comment = data.comments[0];
     socket.emit('updateCommentCount', state.commentCount + 1, state.postId);
-    console.log("Emmmited comment count for post: " + state.postId);
+    //console.log("Emmmited comment count on add comment action for post: " + state.postId); //Added log for testing
+
     return {
         comments: [comment, ...state.comments],
         commentCount: state.commentCount + 1
@@ -57,7 +58,8 @@ async function addReply({state, api, data: {reply, parent}, socket}: {state: App
 
     // Replace the comment in the state with the new one
     socket.emit('updateCommentCount', state.commentCount + 1, state.postId);
-    console.log("Emmmited comment count for post: " + state.postId);
+    //console.log("Emmmited comment count on add reply action for post: " + state.postId);  //Added log for testing
+
     return {
         comments: state.comments.map((c) => {
             if (c.id === parent.id) {
@@ -78,6 +80,7 @@ async function addReply({state, api, data: {reply, parent}, socket}: {state: App
 
 async function hideComment({state, adminApi, data: comment}: {state: AppContextType, adminApi: any, data: {id: string}}) {
     await adminApi.hideComment(comment.id);
+
     return {
         comments: state.comments.map((c) => {
             const replies = c.replies.map((r) => {
@@ -115,6 +118,7 @@ async function showComment({state, api, adminApi, data: comment}: {state: AppCon
     // + all relations are loaded as the current member (not the admin)
     const data = await api.comments.read(comment.id);
     const updatedComment = data.comments[0];
+
     return {
         comments: state.comments.map((c) => {
             const replies = c.replies.map((r) => {
@@ -231,7 +235,8 @@ async function deleteComment({state, api, data: comment, socket}: {state: AppCon
         }
     });
     socket.emit('updateCommentCount', state.commentCount - 1, state.postId);
-    console.log("Emmmited comment count for post: " + state.postId);
+    //console.log("Emmmited comment count on delete comment action for post: " + state.postId);  //Added log for testing
+
     return {
         comments: state.comments.map((c) => {
             const replies = c.replies.map((r) => {
@@ -384,7 +389,7 @@ export function isSyncAction(action: string): action is SyncActionType {
 
 /** Handle actions in the App, returns updated state */
 export async function ActionHandler({action, data, state, api, adminApi, socket}: {action: ActionType, data: any, state: AppContextType, api: GhostApi, adminApi: any, socket: any}) {
-    const handler = Actions[action];    
+    const handler = Actions[action];
     if (handler) {
         return await handler({data, state, api, adminApi, socket} as any) || {};
     }

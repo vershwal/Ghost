@@ -71,7 +71,6 @@ export default class App extends React.Component {
                 url : this.props.siteUrl, 
                 postId: this.props.postId, 
                 updateCommentCount: (newCommentCount, postId) => {
-                    console.log("Ho gya Update ji: " + newCommentCount + " " + postId);
                     if(postId === this.props.postId) {
                         this.setState({commentCount: newCommentCount});
                     }
